@@ -16,14 +16,35 @@ export function TaskList() {
 
   function handleCreateNewTask() {
     // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
+    if(!newTaskTitle)return; //se estiver em branco, vai retornar (nada)
+    //criando um estado temporário através de um objeto com o msmo formato da interface
+    const newTask = { 
+      id: Math.random(), //trocar isso dps pra uuid
+      title: newTaskTitle, //que está dentro do input controlado
+      isComplete: false, //precisa começar como falso 
+    }
+    //callback
+    setTasks(oldState => [...oldState, newTask]); //passando tudo que tem no oldState e salvando + newTask 
+    setNewTaskTitle(''); //reseta o input dps de salvar 
   }
 
   function handleToggleTaskCompletion(id: number) {
     // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
+    const taskCompleted = tasks.map(task => task.id === id ? {
+      ...task, //pega todas as propriedades do objeto e altera somente is complete
+      isComplete: !task.isComplete //pegando a taks antiga e sobrescrevendo o valor anterior dela, se for false será true, se for true será false 
+    } : task ); // se o task id for diferente de id, retorna somente a task do jeito que já estava
+
+    setTasks(taskCompleted);
   }
 
   function handleRemoveTask(id: number) {
     // Remova uma task da listagem pelo ID
+    //procurando o id para retirar 
+    const filtredTasks = tasks.filter(task => task.id !== id); //filtrando o array de tasks para retornar todos os outros itens, menos oq tiver sido selecionado 
+    //pega cada task do filter, e verifica se o id da task é diferente do id selecionado 
+
+    setTasks(filtredTasks); //passa para o setTasks o filtredTasks
   }
 
   return (
@@ -32,10 +53,10 @@ export function TaskList() {
         <h2>Minhas tasks</h2>
 
         <div className="input-group">
-          <input 
+          <input //input controlado
             type="text" 
             placeholder="Adicionar novo todo" 
-            onChange={(e) => setNewTaskTitle(e.target.value)}
+            onChange={(e) => setNewTaskTitle(e.target.value)} //salvando o valor do input em tempo real 
             value={newTaskTitle}
           />
           <button type="submit" data-testid="add-task-button" onClick={handleCreateNewTask}>
